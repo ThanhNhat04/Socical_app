@@ -12,6 +12,9 @@ const listItem = () => {
     <FlatList
       data={storiesData}
       renderItem={renderItem}
+      horizontal={true}
+      keyExtractor={(item) => item.story_id.toString()}
+      showsHorizontalScrollIndicator={false}
     />
   );
 };
