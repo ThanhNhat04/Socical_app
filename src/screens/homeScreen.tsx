@@ -1,8 +1,9 @@
 import React from "react";
 import { StyleSheet, SafeAreaView, View, ScrollView } from "react-native";
 import ListItem from "../components/StoryList";
-import PostList from "../components/PostList";
-import PostItem from "../components/PostItem";
+import PostList from "../components/post/PostList";
+import PostItem from "../components/post/PostItem";
+import LoginScreen from "../screens/auth/LoginScreen"
 
 export default function HomeScreen() {
   return (
@@ -10,7 +11,7 @@ export default function HomeScreen() {
       <View style={styles.story}>
         <ListItem />
       </View>
-      {/* <PostList /> */}
+      <PostList />
       <PostItem/>
     </SafeAreaView>
   );

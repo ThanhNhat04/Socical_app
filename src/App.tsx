@@ -1,11 +1,21 @@
+import { useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import LoginScreen from "./screens/auth/LoginScreen";
 import HomeScreen from "./screens/homeScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./navigation/AppNavigator";
+import AuthNavigator from "./navigation/AuthNavigator";
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <SafeAreaProvider>
-      <HomeScreen />
+      <NavigationContainer>
+        {!isLoggedIn ? (
+          <AuthNavigator setIsLoggedIn={setIsLoggedIn} />
+        ) : (
+          <AppNavigator />
+        )}
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }

@@ -6,7 +6,7 @@ const postItem = () => {
     <View style={styles.container}>
       {/* Header post */}
       <View style={styles.headPost}>
-        <View>
+        <View style={styles.containerPost}>
           <TouchableOpacity>
             <View style={styles.statusAvt}>
               <Image
@@ -59,16 +59,21 @@ const styles = StyleSheet.create({
     padding: 15,
     alignContent: "space-between",
   },
+  containerPost:{
+    flexDirection:"row"
+  },
   statusAvt: {
     width: 40,
     height: 40,
     borderRadius: 50,
-    backgroundColor: "red",
+    backgroundColor: "blue",
     alignItems: "center",
   },
   avatar: { width: 35, height: 35, borderRadius: 23 },
   postText: {},
-  postImage: {},
+  postImage: {
+  
+  },
   userInfo: {},
 });
 
