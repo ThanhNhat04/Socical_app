@@ -11,9 +11,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { usePosts } from "../../hooks/usePosts";
-import { useUsers } from "../../hooks/useUsers";
-import { v4 as uuidv4 } from "uuid"; // để tạo post_id
+import { usePosts } from "../../../hooks/usePosts";
+import { useUsers } from "../../../hooks/useUsers";
+import { v4 as uuidv4 } from "uuid";
+import Post from "../../../data/Post";
+import "react-native-get-random-values";
 
 const CreatePost: FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -22,11 +24,11 @@ const CreatePost: FC = () => {
 
   const { addPost } = usePosts();
   const { users } = useUsers();
-  const currentUser = users[0]; // bạn có thể thay thế bằng useAuth nếu có
+  const currentUser = users[0];
 
   const openImagePicker = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ["images"],
       allowsEditing: true,
       quality: 0.8,
     });
@@ -37,48 +39,60 @@ const CreatePost: FC = () => {
   };
 
   const handlePost = async () => {
-    if (!currentUser) {
-      Alert.alert("Lỗi", "Không xác định người dùng.");
-      return;
+    try {
+      if (!currentUser) {
+        Alert.alert("Lỗi", "Không xác định người dùng.");
+        return;
+      }
+
+      if (!content.trim()) {
+        Alert.alert("Lỗi", "Nội dung không được để trống.");
+        return;
+      }
+
+      const newPost: Post = {
+        post_id: uuidv4().toString(),
+        user_id: currentUser.user_id,
+        title: "Bài viết mới",
+        images: imageUri ? [imageUri] : [],
+        video: [],
+        content,
+        createAt: new Date(),
+        userComment: [],
+        likes: [],
+        visibility: "public",
+      };
+      await addPost(newPost);
+
+      Alert.alert("Bài viết đã được đăng.");
+      setContent("");
+      setImageUri(undefined);
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Lỗi khi đăng bài:", error);
+      Alert.alert("Không thể đăng bài viết.");
     }
-
-    if (!content.trim()) {
-      Alert.alert("Lỗi", "Nội dung không được để trống.");
-      return;
-    }
-
-    await addPost({
-      post_id: uuidv4(),
-      user_id: currentUser.user_id,
-      title: "Bài viết mới",
-      images: imageUri ? [imageUri] : [],
-      video: [],
-      content,
-      createAt: new Date(),
-      comment: [],
-      likes: [],
-      visibility: "public",
-    });
-    console.log(addPost);
-    
-
-    setContent("");
-    setImageUri(undefined);
-    setModalVisible(false);
   };
 
   return (
     <>
-      <TouchableOpacity
-        style={styles.inputTriggerNew}
-        onPress={() => setModalVisible(true)}
-      >
-        <Ionicons name="create-outline" size={20} color="#888" style={{ marginRight: 8 }} />
-        <Text style={styles.inputText}>
-          Bạn đang nghĩ gì, {currentUser?.name || "người dùng"}?
-        </Text>
-        <Ionicons name="image-outline" size={20} color="#888" style={{ marginLeft: "auto" }} />
-      </TouchableOpacity>
+      <View style={styles.wrapper}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={{
+              uri: currentUser?.avatar_url || "https://via.placeholder.com/40",
+            }}
+            style={styles.avatar}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={styles.statusContainer}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.statusText}>Bạn đang nghĩ gì?</Text>
+        </TouchableOpacity>
+      </View>
 
       <Modal visible={modalVisible} animationType="slide">
         <View style={styles.modalContainer}>
@@ -92,10 +106,15 @@ const CreatePost: FC = () => {
             onChangeText={setContent}
           />
 
-          {imageUri && <Image source={{ uri: imageUri }} style={styles.previewImage} />}
+          {imageUri && (
+            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+          )}
 
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.iconButton} onPress={openImagePicker}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={openImagePicker}
+            >
               <Ionicons name="image-outline" size={24} color="#007AFF" />
               <Text style={styles.iconLabel}>Ảnh</Text>
             </TouchableOpacity>
@@ -105,7 +124,10 @@ const CreatePost: FC = () => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
+          >
             <Ionicons name="close" size={28} color="#444" />
           </TouchableOpacity>
         </View>
@@ -117,20 +139,38 @@ const CreatePost: FC = () => {
 export default CreatePost;
 
 const styles = StyleSheet.create({
-  inputTriggerNew: {
+  wrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f2f2f2",
-    padding: 12,
-    margin: 10,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    backgroundColor: "#fff",
+    padding: 10,
+    marginBottom:5,
   },
-  inputText: {
-    color: "#888",
+
+  avatarContainer: {
+    marginRight: 10,
+  },
+
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+
+  statusContainer: {
+    flex: 1,
+    backgroundColor: "#f0f2f5",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 25,
+    justifyContent: "center",
+  },
+
+  statusText: {
+    color: "#555",
     fontSize: 14,
   },
+
   modalContainer: {
     flex: 1,
     padding: 16,

@@ -1,12 +1,10 @@
 import React from "react";
 import { StyleSheet, SafeAreaView, View, ScrollView } from "react-native";
-import PostList from "../components/post/PostList";
-import CreatePost from "../components/post/CreatePost";
+import PostList from "./components/PostList";
 
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <CreatePost />
       <PostList />
     </SafeAreaView>
   );
@@ -15,7 +13,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 20,
+    // marginTop: 1,
     margin: 0,
   },
   story: {

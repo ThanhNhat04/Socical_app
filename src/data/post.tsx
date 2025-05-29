@@ -1,4 +1,4 @@
-import { Comment } from "./Comment";
+import { UserComment  } from "./Comment";
 import { Like } from "./Like";
 
 export type Post = {
@@ -9,7 +9,7 @@ export type Post = {
   video: string[];
   content: string;
   createAt: Date;
-  comment: Comment[];
+  userComment: UserComment [];
   likes: Like[];
   visibility: 'public' | 'friends' | 'private';
 };

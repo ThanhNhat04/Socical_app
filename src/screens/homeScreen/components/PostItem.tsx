@@ -5,19 +5,25 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  Modal,
   ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Post } from "../../data/mockData/post";
 import CommentModal from "./CommentModal";
+import { Post } from "../../../data/Post";
 
 type Props = {
   data?: Post;
   authorName?: string;
+  avatarUrl?: string;
+  userId: string;
 };
 
-const PostItem = ({ data, authorName = "Người dùng" }: Props) => {
+const PostItem = ({
+  data,
+  authorName = "Người dùng",
+  avatarUrl,
+  userId,
+}: Props) => {
   if (!data || !data.createAt) {
     return null;
   }
@@ -37,7 +43,11 @@ const PostItem = ({ data, authorName = "Người dùng" }: Props) => {
       <View style={styles.headPost}>
         <View style={styles.containerPost}>
           <Image
-            source={{ uri: "https://i.pravatar.cc/150?img=3" }}
+            source={{
+              uri:
+                avatarUrl ||
+                "https://tapl.edu.vn/upload/2025/03/anh-mac-dinh-04.webp",
+            }}
             style={styles.avatar}
           />
           <View style={styles.userInfo}>
@@ -58,7 +68,7 @@ const PostItem = ({ data, authorName = "Người dùng" }: Props) => {
       </View>
 
       {/* Hình ảnh lazy load */}
-      <View style={styles.imageWrapper}>
+      {/* <View style={styles.imageWrapper}>
         {!imageLoaded ? (
           <View style={styles.imagePlaceholder}>
             <ActivityIndicator size="large" color="#888" />
@@ -69,7 +79,21 @@ const PostItem = ({ data, authorName = "Người dùng" }: Props) => {
             <Image source={{ uri: data.images[0] }} style={styles.postImage} />
           )
         )}
-      </View>
+      </View> */}
+      {data.images && data.images[0] && (
+        <View style={styles.imageWrapper}>
+          {!imageLoaded ? (
+            <View style={styles.imagePlaceholder}>
+              <ActivityIndicator size="large" color="#888" />
+              <Text style={{ marginTop: 8, color: "#666" }}>
+                Đang tải ảnh...
+              </Text>
+            </View>
+          ) : (
+            <Image source={{ uri: data.images[0] }} style={styles.postImage} />
+          )}
+        </View>
+      )}
 
       {/* Hành động */}
       <View style={styles.actions}>
@@ -98,7 +122,8 @@ const PostItem = ({ data, authorName = "Người dùng" }: Props) => {
       <CommentModal
         visible={showComment}
         onClose={() => setShowComment(false)}
-        comments={data.comment}
+        postId={data.post_id}
+        userId={userId}
       />
     </View>
   );
@@ -161,18 +186,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTopWidth: 0.5,
     borderTopColor: "#ccc",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    maxHeight: "50%",
   },
 });
 

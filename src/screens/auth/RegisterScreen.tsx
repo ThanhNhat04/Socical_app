@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,10 @@ import {
   StyleSheet,
   Image,
   Alert,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useAuth } from '../../hooks/useAuth'; 
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useAuth } from "../../hooks/useAuth";
 
 type RootStackParamList = {
   Login: undefined;
@@ -19,17 +19,17 @@ type RootStackParamList = {
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'Register'
+  "Register"
 >;
 
 const RegisterScreen: React.FC = () => {
   const navigation = useNavigation<RegisterScreenNavigationProp>();
   const { register } = useAuth();
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const isValidEmail = (email: string) => {
     const regex = /^\S+@\S+\.\S+$/;
@@ -37,27 +37,27 @@ const RegisterScreen: React.FC = () => {
   };
 
   const handleRegister = async () => {
+    Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin.");
     if (!name || !email || !password || !confirmPassword) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
+      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin.");
       return;
     }
 
     if (!isValidEmail(email)) {
-      Alert.alert('Lỗi', 'Email không đúng định dạng.');
+      Alert.alert("Lỗi", "Email không đúng định dạng.");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Lỗi', 'Mật khẩu xác nhận không khớp.');
+      Alert.alert("Lỗi", "Mật khẩu xác nhận không khớp.");
       return;
     }
-
     const error = await register(name, email.trim().toLowerCase(), password);
     if (error) {
-      Alert.alert('Lỗi', error);
+      Alert.alert("Lỗi", error);
     } else {
-      Alert.alert('Thành công', 'Tạo tài khoản thành công!');
-      navigation.navigate('Login');
+      Alert.alert("Thành công", "Tạo tài khoản thành công!");
+      navigation.navigate("Login");
     }
   };
 
@@ -65,7 +65,7 @@ const RegisterScreen: React.FC = () => {
     <View style={styles.container}>
       <Image
         source={{
-          uri: 'https://store-images.s-microsoft.com/image/apps.30645.9007199266245907.cb06f1f9-9154-408e-b4ef-d19f2325893b.ac3b465e-4384-42a8-9142-901c0405e1bc',
+          uri: "https://store-images.s-microsoft.com/image/apps.30645.9007199266245907.cb06f1f9-9154-408e-b4ef-d19f2325893b.ac3b465e-4384-42a8-9142-901c0405e1bc",
         }}
         style={styles.logo}
         resizeMode="contain"
@@ -111,7 +111,7 @@ const RegisterScreen: React.FC = () => {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Bạn đã có tài khoản?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
           <Text style={styles.loginText}> Đăng nhập</Text>
         </TouchableOpacity>
       </View>
@@ -124,25 +124,25 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    justifyContent: "center",
     paddingHorizontal: 32,
   },
   logo: {
     width: 120,
     height: 120,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 24,
   },
   title: {
     fontSize: 28,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   input: {
     height: 48,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -150,28 +150,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: "#007BFF",
     paddingVertical: 14,
     borderRadius: 8,
   },
   buttonText: {
-    color: '#fff',
-    textAlign: 'center',
+    color: "#fff",
+    textAlign: "center",
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 20,
   },
   footerText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   loginText: {
     fontSize: 14,
-    color: '#007BFF',
-    fontWeight: 'bold',
+    color: "#007BFF",
+    fontWeight: "bold",
   },
 });
