@@ -1,0 +1,303 @@
+Chuyển đến nội dung
+Lịch sử đoạn chat
+
+Bạn đã nói:
+tôi muốn khi tải hình ảnh lên thì sẽ lưu hình ảnh vào folder images rồi băng nó thành base 64 rồi lưu vào local strorage được không 
+import React, { FC, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Image,
+  Alert,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { usePosts } from "../../../hooks/usePosts";
+import { useUsers } from "../../../hooks/useUsers";
+import { v4 as uuidv4 } from "uuid";
+import Post from "../../../data/Post";
+import "react-native-get-random-values";
+
+const CreatePost: FC = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [content, setContent] = useState("");
+  const [imageUri, setImageUri] = useState<string | undefined>();
+
+  const { addPost } = usePosts();
+  const { users } = useUsers();
+  const currentUser = users[0];
+
+  const openImagePicker = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const handlePost = async () => {
+    try {
+      if (!currentUser) {
+        Alert.alert("Lỗi", "Không xác định người dùng.");
+        return;
+      }
+
+      if (!content.trim()) {
+        Alert.alert("Lỗi", "Nội dung không được để trống.");
+        return;
+      }
+
+      const newPost: Post = {
+        post_id: uuidv4().toString(),
+        user_id: currentUser.user_id,
+        title: "Bài viết mới",
+        images: imageUri ? [imageUri] : [],
+        video: [],
+        content,
+        createAt: new Date(),
+        userComment: [],
+        likes: [],
+        visibility: "public",
+      };
+      await addPost(newPost);
+
+      Alert.alert("Bài viết đã được đăng.");
+      setContent("");
+      setImageUri(undefined);
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Lỗi khi đăng bài:", error);
+      Alert.alert("Không thể đăng bài viết.");
+    }
+  };
+
+  return (
+    <>
+      <View style={styles.wrapper}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={{
+              uri: currentUser?.avatar_url || "https://via.placeholder.com/40",
+            }}
+            style={styles.avatar}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={styles.statusContainer}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.statusText}>Bạn đang nghĩ gì?</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Modal visible={modalVisible} animationType="slide">
+        <View style={styles.modalContainer}>
+          <Text style={styles.title}>Tạo bài viết</Text>
+
+          <TextInput
+            style={styles.textInput}
+            placeholder="Nội dung bài viết..."
+            multiline
+            value={content}
+            onChangeText={setContent}
+          />
+
+          {imageUri && (
+            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+          )}
+
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={openImagePicker}
+            >
+              <Ionicons name="image-outline" size={24} color="#007AFF" />
+              <Text style={styles.iconLabel}>Ảnh</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.postButton} onPress={handlePost}>
+              <Text style={styles.postButtonText}>Đăng</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
+          >
+            <Ionicons name="close" size={28} color="#444" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </>
+  );
+};
+
+export default CreatePost;
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 10,
+    marginBottom:5,
+  },
+
+  avatarContainer: {
+    marginRight: 10,
+  },
+
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+
+  statusContainer: {
+    flex: 1,
+    backgroundColor: "#f0f2f5",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 25,
+    justifyContent: "center",
+  },
+
+  statusText: {
+    color: "#555",
+    fontSize: 14,
+  },
+
+  modalContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 12,
+  },
+  textInput: {
+    minHeight: 100,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    padding: 12,
+    borderRadius: 10,
+    textAlignVertical: "top",
+    backgroundColor: "#f9f9f9",
+  },
+  previewImage: {
+    width: "100%",
+    height: 200,
+    marginTop: 12,
+    borderRadius: 10,
+  },
+  actions: {
+    flexDirection: "row",
+    marginTop: 16,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  iconButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconLabel: {
+    marginLeft: 6,
+    color: "#007AFF",
+  },
+  postButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  postButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 20,
+    right: 16,
+  },
+});
+ChatGPT đã nói:
+Bạn hoàn toàn có thể chuyển hình ảnh thành Base64 rồi lưu vào localStorage (với React Native, bạn sẽ dùng AsyncStorage thay vì localStorage như trên web), tuy nhiên bạn không thể lưu trực tiếp vào một folder như images/ trên thiết bị người dùng, vì hệ điều hành không cho phép truy cập file system như trên trình duyệt hoặc máy tính.
+
+Dưới đây là cách thực hiện những gì bạn cần:
+
+✅ Mục tiêu:
+Chọn ảnh từ thư viện.
+
+Chuyển ảnh sang base64.
+
+Lưu ảnh base64 vào AsyncStorage.
+
+🧩 Bước 1: Cài thêm thư viện expo-file-system
+expo install expo-file-system
+🧩 Bước 2: Cập nhật hàm openImagePicker để lấy base64
+import * as FileSystem from "expo-file-system";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const openImagePicker = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    quality: 0.8,
+  });
+
+  if (!result.canceled && result.assets.length > 0) {
+    const uri = result.assets[0].uri;
+
+    // Chuyển ảnh thành base64
+    const base64Image = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Lưu vào AsyncStorage
+    const key = `image_${Date.now()}`;
+    await AsyncStorage.setItem(key, base64Image);
+
+    setImageUri(uri); // vẫn hiển thị ảnh từ uri
+  }
+};
+🧩 Bước 3: (Tuỳ chọn) Hiển thị ảnh từ base64:
+Nếu muốn hiển thị lại ảnh base64 từ AsyncStorage, bạn có thể làm như sau:
+
+const loadImageFromStorage = async () => {
+  const base64 = await AsyncStorage.getItem("image_key");
+  if (base64) {
+    setImageUri(`data:image/jpeg;base64,${base64}`);
+  }
+};
+🔥 Lưu ý:
+Không nên lưu quá nhiều ảnh base64 vào AsyncStorage, vì dung lượng giới hạn (khoảng vài MB).
+
+Nếu muốn quản lý ảnh tốt hơn, nên lưu ảnh vào FileSystem và chỉ lưu đường dẫn (path) vào AsyncStorage.
+
+✅ Kết luận:
+❌ Không thể lưu ảnh vào thư mục images/ như trên web.
+
+✅ Có thể chuyển ảnh thành base64 và lưu vào AsyncStorage.
+
+✅ Có thể dùng expo-file-system để đọc file thành base64.
+
+✅ Hiển thị lại được ảnh bằng cách prefix: data:image/jpeg;base64,...
+
+Nếu bạn muốn, mình có thể cập nhật toàn bộ hàm openImagePicker và handlePost sao cho nó dùng AsyncStorage để lưu base64 nhé.
+
+
+
+
+Không có tệp nào được chọnKhông có tệp nào được chọn
+ChatGPT có thể mắc lỗi. Hãy kiểm tra các thông tin quan trọng.
