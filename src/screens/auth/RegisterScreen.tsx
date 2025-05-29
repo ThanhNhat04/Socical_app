@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useAuth } from '../../hooks/useAuth'; 
 
 type RootStackParamList = {
   Login: undefined;
@@ -23,6 +24,7 @@ type RegisterScreenNavigationProp = NativeStackNavigationProp<
 
 const RegisterScreen: React.FC = () => {
   const navigation = useNavigation<RegisterScreenNavigationProp>();
+  const { register } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -34,7 +36,7 @@ const RegisterScreen: React.FC = () => {
     return regex.test(email);
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin.');
       return;
@@ -50,9 +52,13 @@ const RegisterScreen: React.FC = () => {
       return;
     }
 
-    // Giả lập đăng ký thành công
-    Alert.alert('Đăng ký thành công', `Chào mừng, ${name}!`);
-    navigation.navigate('Login');
+    const error = await register(name, email.trim().toLowerCase(), password);
+    if (error) {
+      Alert.alert('Lỗi', error);
+    } else {
+      Alert.alert('Thành công', 'Tạo tài khoản thành công!');
+      navigation.navigate('Login');
+    }
   };
 
   return (

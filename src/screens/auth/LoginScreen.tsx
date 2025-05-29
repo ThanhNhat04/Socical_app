@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../../hooks/useAuth";
 
 type LoginProps = {
   setIsLoggedIn: (value: boolean) => void;
@@ -18,13 +19,19 @@ const LoginScreen: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
-  const handleLogin = () => {
-    if (email && password) {
-      // Giả lập thành công đăng nhập
-      Alert.alert("Đăng nhập thành công", `Chào ${email}`);
-      setIsLoggedIn(true); // Gọi hàm để chuyển sang màn hình Home
-    } else {
+  const { login } = useAuth(); 
+
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert("Lỗi", "Vui lòng nhập đầy đủ email và mật khẩu.");
+      return;
+    }
+    const error = await login(email, password);
+    if (error === null) {
+      Alert.alert("Đăng nhập thành công", `Chào ${email}`);
+      setIsLoggedIn(true);
+    } else {
+      Alert.alert("Đăng nhập thất bại", error);
     }
   };
 

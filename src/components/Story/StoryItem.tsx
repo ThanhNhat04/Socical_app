@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet, View, Text, Image } from "react-native";
-import { Story } from "../data/post";
+import { Story } from "../../data/mockData/post";
 
 type itemProp = {
   item: Story;

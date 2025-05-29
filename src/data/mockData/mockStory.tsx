@@ -1,4 +1,4 @@
-import { Story } from "../post";
+import { Story } from "./post";
 export const storiesData: Story[] = [
   {
     story_id: "a16fe94d-5b6c-4b92-886f-631a09be5e0d",

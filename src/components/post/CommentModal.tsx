@@ -9,7 +9,7 @@ import {
   Image,
   TextInput,
 } from "react-native";
-import { Comment } from "../../data/post";
+import { Comment } from "../../data/mockData/post";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 type Props = {

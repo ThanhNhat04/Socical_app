@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Post } from "../../data/post";
+import { Post } from "../../data/mockData/post";
 import CommentModal from "./CommentModal";
 
 type Props = {
