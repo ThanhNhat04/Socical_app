@@ -19,7 +19,7 @@ const AppNavigator = ({ setIsLoggedIn }: { setIsLoggedIn: (value: boolean) => vo
       }}
     >
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Profile" component={UserProfileScreen} />
+      <Stack.Screen name="Profile" component={UserProfileScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };

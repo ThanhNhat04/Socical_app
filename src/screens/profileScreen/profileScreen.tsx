@@ -9,20 +9,21 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import FriendsSection from "./components/FriendsSection";
 import { useUsers } from "../../hooks/useUsers";
 import ProfilePostList from "./components/profilePostList";
 import { useTheme } from "../../context/ThemeContext";
 import EditUserInfoModal from "./components/EditUserInfoModal";
+import { useNavigation } from "@react-navigation/native";
 
 const UserProfileScreen = () => {
+  const navigation = useNavigation();
   const { currentUser, updateUser } = useUsers();
   const [avatar, setAvatar] = useState<string | null>(
     currentUser?.avatar_url || null
   );
   const [editModalVisible, setEditModalVisible] = useState(false);
-
   const { theme } = useTheme();
 
   const friends = [
@@ -76,7 +77,15 @@ const UserProfileScreen = () => {
 
   return (
     <ScrollView style={{ backgroundColor: theme.backgroundColor }}>
-      {/* Cover image dùng avatar_url */}
+      {/* Header có nút quay lại */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={theme.textColor} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: theme.textColor }]}>Trang cá nhân</Text>
+      </View>
+
+      {/* Cover image */}
       <TouchableOpacity onPress={pickAvatar}>
         <Image
           source={{
@@ -148,6 +157,20 @@ export default UserProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "transparent",
+  },
+  backButton: {
+    marginRight: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
   coverImage: {
     width: "100%",

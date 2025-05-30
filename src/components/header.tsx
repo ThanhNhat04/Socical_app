@@ -27,7 +27,8 @@ const Header = ({ setIsLoggedIn }: { setIsLoggedIn: (value: boolean) => void }) 
 
   const handleProfile = () => {
     setMenuVisible(false);
-    navigation.navigate("Profile");
+    // navigation.navigate("Profile");
+    navigation.push("Profile");
   };
 
   const handleToggleDarkMode = () => {
