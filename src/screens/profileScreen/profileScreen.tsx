@@ -11,19 +11,19 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons } from "@expo/vector-icons";
 import FriendsSection from "./components/FriendsSection";
+import { useUsers } from "../../hooks/useUsers";
+import ProfilePostList from "./components/profilePostList";
+import { useTheme } from "../../context/ThemeContext";
+import EditUserInfoModal from "./components/EditUserInfoModal";
 
 const UserProfileScreen = () => {
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const { currentUser, updateUser } = useUsers();
+  const [avatar, setAvatar] = useState<string | null>(
+    currentUser?.avatar_url || null
+  );
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
-  const posts = [
-    {
-      id: "1",
-      title: "Bài viết đầu tiên",
-      content: "Nội dung bài viết số 1...",
-    },
-    { id: "2", title: "Chia sẻ hôm nay", content: "Nội dung bài viết số 2..." },
-  ];
+  const { theme } = useTheme();
 
   const friends = [
     {
@@ -53,9 +53,7 @@ const UserProfileScreen = () => {
     },
   ];
 
-  const pickImage = async (
-    setImage: React.Dispatch<React.SetStateAction<string | null>>
-  ) => {
+  const pickAvatar = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       Alert.alert("Quyền truy cập bị từ chối");
@@ -68,19 +66,23 @@ const UserProfileScreen = () => {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      setAvatar(uri);
+      if (currentUser) {
+        await updateUser(currentUser.user_id, { avatar_url: uri });
+      }
     }
   };
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Cover Image */}
-      <TouchableOpacity onPress={() => pickImage(setCoverImage)}>
+    <ScrollView style={{ backgroundColor: theme.backgroundColor }}>
+      {/* Cover image dùng avatar_url */}
+      <TouchableOpacity onPress={pickAvatar}>
         <Image
           source={{
             uri:
-              coverImage ||
-              "https://thumbs.dreamstime.com/b/spring-wallpaper-creating-award-winning-photograph-pic-encapsulates-timeless-beauty-tranquility-nature-351383535.jpg",
+              avatar ||
+              "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg",
           }}
           style={styles.coverImage}
         />
@@ -89,14 +91,14 @@ const UserProfileScreen = () => {
         </View>
       </TouchableOpacity>
 
-      {/* Avatar and Info */}
+      {/* Avatar và thông tin */}
       <View style={styles.avatarContainer}>
-        <TouchableOpacity onPress={() => pickImage(setAvatar)}>
+        <TouchableOpacity onPress={pickAvatar}>
           <Image
             source={{
               uri:
                 avatar ||
-                "https://thumbs.dreamstime.com/b/spring-wallpaper-creating-award-winning-photograph-pic-encapsulates-timeless-beauty-tranquility-nature-351383535.jpg",
+                "https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg",
             }}
             style={styles.avatar}
           />
@@ -105,29 +107,38 @@ const UserProfileScreen = () => {
           </View>
         </TouchableOpacity>
 
-        <Text style={styles.name}>Thanh Nhật</Text>
-        <Text style={styles.friendsCount}>248 người bạn</Text>
+        <Text style={[styles.name, { color: theme.textColor }]}>
+          {currentUser?.name || "Tên người dùng"}
+        </Text>
+        <Text style={[styles.friendsCount, { color: theme.textColor }]}>
+          248 người bạn
+        </Text>
 
         <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => Alert.alert("Chức năng đang phát triển")}
+          style={[styles.editButton, { backgroundColor: "#63B8FF" }]}
+          onPress={() => setEditModalVisible(true)}
         >
-          <Text style={styles.editButtonText}>Chỉnh sửa thông tin</Text>
+          <Text
+            style={[styles.editButtonText, { color: theme.backgroundColor }]}
+          >
+            Chỉnh sửa thông tin
+          </Text>
         </TouchableOpacity>
+
+        <EditUserInfoModal
+          visible={editModalVisible}
+          onClose={() => setEditModalVisible(false)}
+          onSave={async (updatedData) => {
+            if (currentUser) {
+              await updateUser(currentUser.user_id, updatedData);
+            }
+          }}
+          user={currentUser}
+        />
       </View>
 
-      {/* Bài viết */}
-      <View style={styles.postsContainer}>
-        {posts.map((post) => (
-          <View key={post.id} style={styles.postItem}>
-            <Text style={styles.postTitle}>{post.title}</Text>
-            <Text style={styles.postContent}>{post.content}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Bạn bè */}
       <FriendsSection friends={friends} />
+      <ProfilePostList />
     </ScrollView>
   );
 };
@@ -137,7 +148,6 @@ export default UserProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   coverImage: {
     width: "100%",
@@ -161,18 +171,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   friendsCount: {
-    color: "#666",
     fontSize: 14,
   },
   editButton: {
     marginTop: 8,
-    backgroundColor: "#007bff",
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
   },
   editButtonText: {
-    color: "#fff",
     fontWeight: "600",
   },
   editAvatarIcon: {
@@ -187,33 +194,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 10,
     right: 10,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(54, 26, 216, 0.6)",
     padding: 6,
     borderRadius: 20,
-  },
-  postsContainer: {
-    padding: 16,
-  },
-  postItem: {
-    marginBottom: 16,
-    padding: 12,
-    borderRadius: 10,
-    backgroundColor: "#f2f2f2",
-  },
-  postTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  postContent: {
-    fontSize: 14,
-    color: "#333",
-  },
-
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
   },
 });

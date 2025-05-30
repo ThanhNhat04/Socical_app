@@ -14,17 +14,17 @@ import * as ImagePicker from "expo-image-picker";
 import { usePosts } from "../../../hooks/usePosts";
 import { useUsers } from "../../../hooks/useUsers";
 import { v4 as uuidv4 } from "uuid";
-import Post from "../../../data/Post";
+import { Post } from "../../../data/post";
 import "react-native-get-random-values";
+import { convertToBase64 } from "../../../utils/imageUtils";
 
-const CreatePost: FC = () => {
+const CreatePost: FC<{ onPostCreated?: () => void }> = ({ onPostCreated }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [content, setContent] = useState("");
   const [imageUri, setImageUri] = useState<string | undefined>();
 
   const { addPost } = usePosts();
-  const { users } = useUsers();
-  const currentUser = users[0];
+  const { currentUser } = useUsers();
 
   const openImagePicker = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -50,11 +50,15 @@ const CreatePost: FC = () => {
         return;
       }
 
+      let base64Image: string | undefined;
+      if (imageUri) {
+        base64Image = await convertToBase64(imageUri); // CHUYỂN ĐỔI ẢNH
+      }
       const newPost: Post = {
         post_id: uuidv4().toString(),
         user_id: currentUser.user_id,
         title: "Bài viết mới",
-        images: imageUri ? [imageUri] : [],
+        images: base64Image ? [base64Image] : [],
         video: [],
         content,
         createAt: new Date(),
@@ -63,6 +67,7 @@ const CreatePost: FC = () => {
         visibility: "public",
       };
       await addPost(newPost);
+      if (onPostCreated) onPostCreated();
 
       Alert.alert("Bài viết đã được đăng.");
       setContent("");
@@ -144,7 +149,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     padding: 10,
-    marginBottom:5,
+    marginBottom: 5,
   },
 
   avatarContainer: {

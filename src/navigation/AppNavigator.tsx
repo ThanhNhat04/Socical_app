@@ -11,11 +11,11 @@ export type AppStackParamList = {
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
-const AppNavigator = () => {
+const AppNavigator = ({ setIsLoggedIn }: { setIsLoggedIn: (value: boolean) => void }) => {
   return (
     <Stack.Navigator
       screenOptions={{
-        header: () => <HeaderComponent  />,
+        header: () => <HeaderComponent setIsLoggedIn={setIsLoggedIn} />,
       }}
     >
       <Stack.Screen name="Home" component={HomeScreen} />

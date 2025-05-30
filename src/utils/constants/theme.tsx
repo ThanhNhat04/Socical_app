@@ -36,3 +36,18 @@ export default {
     FONTS,
     SIZES,
 };
+
+
+export const lightTheme = {
+  backgroundColor: '#FFFFFF',
+  textColor: '#000000',
+  modalBackground: '#F5F5F5',
+};
+
+export const darkTheme = {
+  backgroundColor: '#4F4F4F',
+  textColor: '#FFFFFF',
+  modalBackground: '#1E1E1E',
+};
+
+export type ThemeType = typeof lightTheme;

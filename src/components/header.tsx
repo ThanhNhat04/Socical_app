@@ -7,14 +7,14 @@ import {
   StyleSheet,
   Modal,
   Pressable,
-  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useUsers } from "../hooks/useUsers";
 import { useAuth } from "../hooks/useAuth";
+import { useTheme } from "../context/ThemeContext"; 
 
-const Header = () => {
+const Header = ({ setIsLoggedIn }: { setIsLoggedIn: (value: boolean) => void }) => {
   const navigation = useNavigation<any>();
   const [menuVisible, setMenuVisible] = useState(false);
   const [logoutVisible, setLogoutVisible] = useState(false);
@@ -23,51 +23,40 @@ const Header = () => {
   const { logout } = useAuth();
   const currentUser = users[0];
 
+  const { theme, isDarkMode, toggleTheme } = useTheme();
+
   const handleProfile = () => {
     setMenuVisible(false);
     navigation.navigate("Profile");
   };
 
   const handleToggleDarkMode = () => {
+    toggleTheme();
     setMenuVisible(false);
-    console.log("Dark mode toggled");
   };
 
   const confirmLogout = () => {
     setLogoutVisible(true);
   };
 
-  // const handleLogout = () => {
-  //   // setLogoutVisible(false);
-  //   // setMenuVisible(false);
-  //   // // 👉 Thêm logic xóa token, clear state, hoặc navigate về màn hình Login:
-  //   // navigation.replace('Login'); // hoặc navigation.navigate('Login');
-  //   try {
-  //     await logout();
-  //     setLogoutVisible(false);
-  //     setMenuVisible(false);
-  //     navigation.replace("Login");
-  //   } catch (error) {
-  //     console.error("Đăng xuất thất bại:", error);
-  //   }
-  // };
   const handleLogout = async () => {
     try {
-      await logout(); 
+      await logout();
       setLogoutVisible(false);
       setMenuVisible(false);
-      
+      // navigation.replace("Login");
+      setIsLoggedIn(false);
     } catch (error) {
       console.error("Đăng xuất thất bại:", error);
     }
   };
 
   return (
-    <View style={styles.header}>
-      <Text style={styles.title}>Tên Ứng Dụng</Text>
+    <View style={[styles.header, { backgroundColor: theme.backgroundColor }]}>
+      <Text style={[styles.title, { color: theme.textColor }]}>Tên Ứng Dụng</Text>
 
       <TouchableOpacity style={{ marginRight: 12 }}>
-        <Ionicons name="notifications-outline" size={24} color="#000" />
+        <Ionicons name="notifications-outline" size={24} color={theme.textColor} />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => setMenuVisible(true)}>
@@ -90,18 +79,19 @@ const Header = () => {
           style={styles.modalOverlay}
           onPress={() => setMenuVisible(false)}
         >
-          <View style={styles.dropdown}>
+          <View style={[styles.dropdown, { backgroundColor: theme.modalBackground }]}>
             <TouchableOpacity onPress={handleProfile} style={styles.menuItem}>
-              <Text style={styles.menuText}>
+              <Text style={[styles.menuText, { color: theme.textColor }]}>
                 {currentUser?.name || "Người dùng"}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleToggleDarkMode}
-              style={styles.menuItem}
-            >
-              <Text style={styles.menuText}>Chuyển chế độ tối</Text>
+
+            <TouchableOpacity onPress={handleToggleDarkMode} style={styles.menuItem}>
+              <Text style={[styles.menuText, { color: theme.textColor }]}>
+                {isDarkMode ? "Chuyển chế độ sáng" : "Chuyển chế độ tối"}
+              </Text>
             </TouchableOpacity>
+
             <TouchableOpacity onPress={confirmLogout} style={styles.menuItem}>
               <Text style={[styles.menuText, { color: "red" }]}>Đăng xuất</Text>
             </TouchableOpacity>
@@ -117,8 +107,8 @@ const Header = () => {
         onRequestClose={() => setLogoutVisible(false)}
       >
         <View style={styles.logoutOverlay}>
-          <View style={styles.logoutBox}>
-            <Text style={styles.logoutTitle}>
+          <View style={[styles.logoutBox, { backgroundColor: theme.modalBackground }]}>
+            <Text style={[styles.logoutTitle, { color: theme.textColor }]}>
               Bạn có chắc chắn muốn đăng xuất?
             </Text>
             <View style={styles.logoutActions}>
@@ -147,7 +137,6 @@ export default Header;
 const styles = StyleSheet.create({
   header: {
     height: 60,
-    backgroundColor: "#fff",
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -159,7 +148,6 @@ const styles = StyleSheet.create({
     left: 16,
     fontSize: 18,
     fontWeight: "bold",
-    color: "#000",
   },
   avatar: {
     width: 32,
@@ -176,7 +164,6 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     width: 200,
-    backgroundColor: "#fff",
     borderRadius: 8,
     paddingVertical: 8,
     shadowColor: "#000",
@@ -191,7 +178,6 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 16,
-    color: "#333",
   },
   logoutOverlay: {
     flex: 1,
@@ -201,7 +187,6 @@ const styles = StyleSheet.create({
   },
   logoutBox: {
     width: 300,
-    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
     elevation: 10,

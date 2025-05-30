@@ -4,7 +4,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./navigation/AppNavigator";
 import AuthNavigator from "./navigation/AuthNavigator";
 import { storage } from "./utils/storage";
-import type { User } from "./data/User";
+import type { User } from "./data/user";
+import { ThemeProvider } from "./context/ThemeContext"; 
 
 const CURRENT_USER_KEY = "currentUser";
 
@@ -12,7 +13,6 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); 
   const [loading, setLoading] = useState(true);
 
-  // Kiểm tra AsyncStorage khi app khởi động
   useEffect(() => {
     const checkLoginStatus = async () => {
       const user = await storage.get<User>(CURRENT_USER_KEY);
@@ -22,17 +22,19 @@ export default function App() {
     checkLoginStatus();
   }, []);
 
-  if (loading) return null; 
+  if (loading) return null;
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        {isLoggedIn ? (
-          <AppNavigator />
-        ) : (
-          <AuthNavigator setIsLoggedIn={setIsLoggedIn} />
-        )}
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <ThemeProvider> 
+      <SafeAreaProvider>
+        <NavigationContainer>
+          {isLoggedIn ? (
+            <AppNavigator setIsLoggedIn={setIsLoggedIn} /> 
+          ) : (
+            <AuthNavigator setIsLoggedIn={setIsLoggedIn} />
+          )}
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

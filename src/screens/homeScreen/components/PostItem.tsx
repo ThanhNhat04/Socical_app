@@ -9,7 +9,8 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import CommentModal from "./CommentModal";
-import { Post } from "../../../data/Post";
+import { Post } from "../../../data/post";
+import { renderBase64Image } from "../../..//utils/imageUtils";
 
 type Props = {
   data?: Post;
@@ -68,18 +69,6 @@ const PostItem = ({
       </View>
 
       {/* Hình ảnh lazy load */}
-      {/* <View style={styles.imageWrapper}>
-        {!imageLoaded ? (
-          <View style={styles.imagePlaceholder}>
-            <ActivityIndicator size="large" color="#888" />
-            <Text style={{ marginTop: 8, color: "#666" }}>Đang tải ảnh...</Text>
-          </View>
-        ) : (
-          data.images[0] && (
-            <Image source={{ uri: data.images[0] }} style={styles.postImage} />
-          )
-        )}
-      </View> */}
       {data.images && data.images[0] && (
         <View style={styles.imageWrapper}>
           {!imageLoaded ? (
